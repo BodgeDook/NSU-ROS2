@@ -1,0 +1,6 @@
+Starting >>> dmrzlobin_pkg_ex03
+Starting >>> turtlesim
+Finished <<< dmrzlobin_pkg_ex03 [0.23s]
+Finished <<< turtlesim [0.88s]
+
+Summary: 2 packages finished [1.27s]

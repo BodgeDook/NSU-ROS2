@@ -1,2 +1,1 @@
-/dmrzlobin_turtle # my node
-/turtlesim # ros2 default node
+/dmrzlobin_turtle

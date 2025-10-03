@@ -14,12 +14,6 @@
 /kill
 /reset
 /spawn
-/teleop_turtle/describe_parameters
-/teleop_turtle/get_parameter_types
-/teleop_turtle/get_parameters
-/teleop_turtle/list_parameters
-/teleop_turtle/set_parameters
-/teleop_turtle/set_parameters_atomically
 /turtle1/set_pen
 /turtle1/teleport_absolute
 /turtle1/teleport_relative

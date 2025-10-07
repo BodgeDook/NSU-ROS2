@@ -62,7 +62,7 @@ private:
   SquareState square_state_ = SquareState::MOVE_RIGHT;
   int square_passes_ = 0;
   int total_square_passes_;
-  double square_step_ = 0.3;
+  double square_step_ = 0.3; // or less for more accurate result (but not less 0.1)
   
   // For return home
   double home_x_ = 5.5;

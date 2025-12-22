@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <gazebo>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+  </gazebo>
+
+  <gazebo>
+    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+      <left_joint>rear_left_wheel_joint</left_joint>
+      <right_joint>rear_right_wheel_joint</right_joint>
+      <wheel_separation>0.58</wheel_separation>
+      <wheel_radius>0.15</wheel_radius>
+      <max_linear_acceleration>1.0</max_linear_acceleration>
+      <min_linear_acceleration>-1.0</min_linear_acceleration>
+      <max_angular_acceleration>2.0</max_angular_acceleration>
+      <min_angular_acceleration>-2.0</min_angular_acceleration>
+      <max_linear_velocity>0.5</max_linear_velocity>
+      <min_linear_velocity>-0.5</min_linear_velocity>
+      <max_angular_velocity>1.0</max_angular_velocity>
+      <min_angular_velocity>-1.0</min_angular_velocity>
+      <topic>/model/differential_robot/cmd_vel</topic>
+      <odom_topic>/model/differential_robot/odometry</odom_topic>
+      <tf_topic>/model/differential_robot/tf</tf_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_footprint</child_frame_id>
+      <odom_publish_frequency>30</odom_publish_frequency>
+      <publish_odom_tf>true</publish_odom_tf>
+    </plugin>
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>/model/differential_robot/joint_state</topic>
+      <joint_name>rear_left_wheel_joint</joint_name>
+      <joint_name>rear_right_wheel_joint</joint_name>
+      <joint_name>front_left_wheel_joint</joint_name>
+      <joint_name>front_right_wheel_joint</joint_name>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="rear_left_wheel">
+    <mu1>1.0</mu1><mu2>1.0</mu2><kp>1000000.0</kp><kd>100.0</kd>
+    <minDepth>0.001</minDepth><maxVel>1.0</maxVel>
+  </gazebo>
+  <gazebo reference="rear_right_wheel">
+    <mu1>1.0</mu1><mu2>1.0</mu2><kp>1000000.0</kp><kd>100.0</kd>
+    <minDepth>0.001</minDepth><maxVel>1.0</maxVel>
+  </gazebo>
+  <gazebo reference="front_left_wheel">
+    <mu1>0.01</mu1><mu2>0.01</mu2><kp>1000000.0</kp><kd>100.0</kd>
+    <minDepth>0.001</minDepth><maxVel>1.0</maxVel>
+  </gazebo>
+  <gazebo reference="front_right_wheel">
+    <mu1>0.01</mu1><mu2>0.01</mu2><kp>1000000.0</kp><kd>100.0</kd>
+    <minDepth>0.001</minDepth><maxVel>1.0</maxVel>
+  </gazebo>
+
+  <gazebo reference="body_link">
+    <sensor name="depth_camera" type="depth_camera">
+      <pose>0.22 0 0.1 0 0 0</pose>
+      <gz_frame_id>body_link</gz_frame_id>
+      
+      <always_on>true</always_on>
+      <update_rate>10</update_rate>
+      <visualize>true</visualize>
+      <topic>depth_camera/image</topic>
+      
+      <camera>
+        <horizontal_fov>1.047</horizontal_fov>
+        <image>
+          <width>320</width>
+          <height>240</height>
+          <format>R_FLOAT32</format>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>10.0</far>
+        </clip>
+      </camera>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="body_link">
+    <sensor name="imu_sensor" type="imu">
+      <gz_frame_id>body_link</gz_frame_id>
+      <always_on>1</always_on>
+      <update_rate>100</update_rate>
+      <visualize>true</visualize>
+      <topic>/model/differential_robot/imu</topic>
+      
+      <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu">
+      </plugin>
+
+      <imu>
+        <angular_velocity>
+          <x><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></x>
+          <y><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></y>
+          <z><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></z>
+        </angular_velocity>
+        <linear_acceleration>
+          <x><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></x>
+          <y><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></y>
+          <z><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></z>
+        </linear_acceleration>
+      </imu>
+    </sensor>
+  </gazebo>
+
+</robot>

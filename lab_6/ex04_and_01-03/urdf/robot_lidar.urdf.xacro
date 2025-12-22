@@ -1,0 +1,255 @@
+<?xml version="1.0"?>
+<robot name="advanced_differential_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ========== КОНСТАНТЫ ========== -->
+  <xacro:property name="BASE_LENGTH" value="1.0" />
+  <xacro:property name="BASE_WIDTH" value="0.5" />
+  <xacro:property name="BASE_HEIGHT" value="0.15" />
+  
+  <xacro:property name="BODY_LENGTH" value="0.4" />
+  <xacro:property name="BODY_WIDTH" value="0.3" />
+  <xacro:property name="BODY_HEIGHT" value="0.8" />
+  
+  <xacro:property name="WHEEL_RADIUS" value="0.15" />
+  <xacro:property name="WHEEL_LENGTH" value="0.08" />
+  
+  <xacro:property name="SCREEN_THICKNESS" value="0.02" />
+  <xacro:property name="SCREEN_WIDTH" value="0.25" />
+  <xacro:property name="SCREEN_HEIGHT" value="0.15" />
+  <xacro:property name="WHEEL_X_OFFSET" value="0.3" />
+  <xacro:property name="WHEEL_Y_OFFSET" value="0.29" />
+  
+  <!-- ========== МАКРОС ДЛЯ КОЛЕСА ========== -->
+  <xacro:macro name="wheel" params="name x y">
+    <link name="${name}">
+      <visual>
+        <geometry>
+          <cylinder length="${WHEEL_LENGTH}" radius="${WHEEL_RADIUS}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder length="${WHEEL_LENGTH}" radius="${WHEEL_RADIUS}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="1.0"/>
+        <inertia ixx="0.0115" ixy="0.0" ixz="0.0" 
+                 iyy="0.0115" iyz="0.0" izz="0.01125"/>
+      </inertial>
+    </link>
+    
+    <joint name="${name}_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${name}"/>
+      
+      <origin xyz="${x} ${y} -0.075" rpy="-1.5708 0 0"/>
+      
+      <axis xyz="0 0 1"/>
+      
+      <dynamics damping="0.1" friction="0.1"/>
+    </joint>
+  </xacro:macro>
+  
+  <!-- ========== МАКРОС ДЛЯ РУКИ ========== -->
+  <xacro:macro name="arm" params="side">
+    <xacro:if value="${side == 'left'}">
+      <xacro:property name="y_shoulder_origin" value="0.15" />
+      <xacro:property name="y_shoulder_visual" value="0.1" />
+      <xacro:property name="y_elbow_origin" value="0.175" />
+    </xacro:if>
+    <xacro:unless value="${side == 'left'}">
+      <xacro:property name="y_shoulder_origin" value="-0.15" />
+      <xacro:property name="y_shoulder_visual" value="-0.1" />
+      <xacro:property name="y_elbow_origin" value="-0.175" />
+    </xacro:unless>
+    
+    <link name="${side}_shoulder_link">
+      <visual>
+        <origin xyz="0 ${y_shoulder_visual} 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.05 0.2 0.05"/>
+        </geometry>
+        <material name="dark_gray"/>
+      </visual>
+      <collision>
+        <origin xyz="0 ${y_shoulder_visual} 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.05 0.2 0.05"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.3"/>
+        <inertia ixx="0.001025" ixy="0.0" ixz="0.0" 
+                 iyy="0.000437" iyz="0.0" izz="0.001025"/>
+      </inertial>
+    </link>
+    
+    <joint name="${side}_shoulder_joint" type="fixed">
+      <parent link="body_link"/>
+      <child link="${side}_shoulder_link"/>
+      <origin xyz="0 ${y_shoulder_origin} 0.25" rpy="0 0 0"/>
+    </joint>
+    
+    <link name="${side}_forearm_link">
+      <visual>
+        <origin xyz="0 0 -0.15" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.05 0.05 0.3"/>
+        </geometry>
+        <material name="dark_gray"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 -0.15" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.05 0.05 0.3"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.2"/>
+        <inertia ixx="0.00155" ixy="0.0" ixz="0.0" 
+                 iyy="0.00155" iyz="0.0" izz="0.000083"/>
+      </inertial>
+    </link>
+    
+    <joint name="${side}_elbow_joint" type="fixed">
+      <parent link="${side}_shoulder_link"/>
+      <child link="${side}_forearm_link"/>
+      <origin xyz="0 ${y_elbow_origin} -0.025" rpy="0 0 0"/>
+    </joint>
+    
+    <link name="${side}_hand_link">
+      <visual>
+        <geometry>
+          <box size="0.08 0.08 0.08"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.08 0.08 0.08"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="0.000107" ixy="0.0" ixz="0.0" 
+                 iyy="0.000107" iyz="0.0" izz="0.000107"/>
+      </inertial>
+    </link>
+    
+    <joint name="${side}_hand_joint" type="fixed">
+      <parent link="${side}_forearm_link"/>
+      <child link="${side}_hand_link"/>
+      <origin xyz="0 0 -0.3" rpy="0 0 0"/>
+    </joint>
+  </xacro:macro>
+  
+  <!-- ========== ОСНОВНАЯ СТРУКТУРА ========== -->
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+  <material name="black">
+    <color rgba="0.1 0.1 0.1 1"/>
+  </material>
+  <material name="gray">
+    <color rgba="0.5 0.5 0.5 1"/>
+  </material>
+  <material name="dark_gray">
+    <color rgba="0.3 0.3 0.3 1"/>
+  </material>
+  
+  <link name="base_footprint">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0.225" rpy="0 0 0"/>
+  </joint>
+  
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="${BASE_LENGTH} ${BASE_WIDTH} ${BASE_HEIGHT}"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${BASE_LENGTH} ${BASE_WIDTH} ${BASE_HEIGHT}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="12.0"/>
+      <inertia ixx="0.2875" ixy="0.0" ixz="0.0" 
+               iyy="1.0225" iyz="0.0" izz="1.2875"/>
+    </inertial>
+  </link>
+  
+  <link name="body_link">
+    <visual>
+      <geometry>
+        <box size="${BODY_LENGTH} ${BODY_WIDTH} ${BODY_HEIGHT}"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${BODY_LENGTH} ${BODY_WIDTH} ${BODY_HEIGHT}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="6.0"/>
+      <inertia ixx="0.3295" ixy="0.0" ixz="0.0" 
+               iyy="0.408" iyz="0.0" izz="0.0895"/>
+    </inertial>
+  </link>
+  
+  <joint name="body_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="body_link"/>
+    <origin xyz="0 0 0.475" rpy="0 0 0"/>
+  </joint>
+  
+  <link name="screen_link">
+    <visual>
+      <geometry>
+        <box size="${SCREEN_THICKNESS} ${SCREEN_WIDTH} ${SCREEN_HEIGHT}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${SCREEN_THICKNESS} ${SCREEN_WIDTH} ${SCREEN_HEIGHT}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.3"/>
+      <inertia ixx="0.000594" ixy="0.0" ixz="0.0" 
+               iyy="0.000581" iyz="0.0" izz="0.000163"/>
+    </inertial>
+  </link>
+  
+  <joint name="screen_joint" type="fixed">
+    <parent link="body_link"/>
+    <child link="screen_link"/>
+    <origin xyz="0.21 0 0.2" rpy="0 0 0"/>
+  </joint>
+  
+  <xacro:arm side="left"/>
+  <xacro:arm side="right"/>
+  
+  <xacro:wheel name="front_left_wheel" x="${WHEEL_X_OFFSET}" y="${WHEEL_Y_OFFSET}"/>
+  <xacro:wheel name="front_right_wheel" x="${WHEEL_X_OFFSET}" y="${-WHEEL_Y_OFFSET}"/>
+  <xacro:wheel name="rear_left_wheel" x="${-WHEEL_X_OFFSET}" y="${WHEEL_Y_OFFSET}"/>
+  <xacro:wheel name="rear_right_wheel" x="${-WHEEL_X_OFFSET}" y="${-WHEEL_Y_OFFSET}"/>
+  
+  <!-- Включаем Gazebo конфигурацию -->
+  <xacro:include filename="$(find robot_lidar)/urdf/robot_lidar.gazebo.xacro" />
+</robot>
